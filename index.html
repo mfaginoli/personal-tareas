@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personal · Gestor de Tareas</title>
+<title>Personal · Tareas v2</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1149,6 +1149,12 @@ window.selectTipo = function(tipo) {
 }
 
 // DAY FILTER
+window.clearDayFilter = function() {
+  document.getElementById('filter-dia').value = '';
+  const btn = document.getElementById('btn-hoy');
+  if(btn) btn.classList.remove('active');
+  renderTasks();
+}
 
 window.exportarPDFDelegadas = function() {
   const persona = document.getElementById('filter-persona').value;
@@ -1235,7 +1241,7 @@ window.exportarPDFDelegadas = function() {
         <tbody>${filas || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Sin tareas delegadas</td></tr>'}</tbody>
       </table>
       <div class="footer">UBIX · Personal · Gestor de Tareas</div>
-      <script>window.onload = function() { window.print(); }</script>
+      <scr'+'ipt>setTimeout(function(){window.print();},500);</scr'+'ipt>
     </body>
     </html>`;
 
