@@ -1065,6 +1065,8 @@ function getFiltered() {
   else if (currentView === 'delegadas') filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
   else if (currentView === 'vencidas') filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
   else if (currentView === 'finalizadas') filtered = filtered.filter(t => t.estado === 'Finalizada');
+  else if (currentEstado === 'Finalizada') filtered = filtered; // show all including finalizadas
+  else if (currentEstado === 'todas-e') filtered = filtered.filter(t => t.estado !== 'Finalizada');
   else if (currentView === 'todas') filtered = filtered.filter(t => t.estado !== 'Finalizada');
   else if (currentArea) filtered = filtered.filter(t => t.estado !== 'Finalizada');
   else if (currentArea) filtered = filtered.filter(t => t.area === currentArea);
