@@ -749,8 +749,9 @@
       <button class="filter-chip" onclick="setEstado('En proceso', this)">En proceso</button>
       <button class="filter-chip" onclick="setEstado('Finalizada', this)">Finalizada</button>
       <div class="filter-sep"></div>
+      <button class="filter-chip" id="btn-hoy" onclick="filtrarHoy()" style="font-size:12px">📅 Hoy</button>
       <input type="date" id="filter-dia" class="form-input" onchange="renderTasks()" style="padding:4px 10px;font-size:12px;width:auto;border-radius:20px" title="Filtrar por día">
-      <button class="filter-chip" onclick="clearDayFilter()" style="font-size:11px">× Limpiar día</button>
+      <button class="filter-chip" onclick="clearDayFilter()" style="font-size:11px">× Limpiar</button>
     </div>
 
     <!-- TASK LIST -->
@@ -915,6 +916,18 @@
     <textarea class="form-input" id="edit-descripcion" style="resize:vertical;min-height:70px"></textarea>
   </div>
   <div style="height:1px;background:#e2e8f0;margin:16px 0"></div>
+  <div style="margin-bottom:14px">
+    <label style="display:block;font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px">Derivar a</label>
+    <select class="form-select" id="edit-destinatario">
+      <option value="">Sin derivar</option>
+      <option>Martín</option>
+      <option>Mariano</option>
+      <option>Hugo</option>
+      <option>Proveedor</option>
+      <option>Otro</option>
+    </select>
+  </div>
+  <div style="height:1px;background:#e2e8f0;margin:16px 0"></div>
   <button onclick="pasarParaMañana()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-family:var(--font-body);font-size:13px;cursor:pointer;margin-bottom:8px">📅 Pasar para mañana</button>
   <button onclick="guardarEdicionTarea()" style="width:100%;padding:9px;border-radius:8px;border:none;background:#0891b2;color:white;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px">Guardar cambios</button>
   <button onclick="eliminarTareaEdit()" style="width:100%;padding:9px;border-radius:8px;border:1px solid rgba(220,38,38,0.3);background:transparent;color:#dc2626;font-family:var(--font-body);font-size:13px;cursor:pointer">Eliminar tarea</button>
@@ -1062,7 +1075,10 @@ function getFiltered() {
   }
   // Day filter
   const diaFilter = document.getElementById('filter-dia');
-  if(diaFilter && diaFilter.value) filtered = filtered.filter(t => t.fecha === diaFilter.value);
+  if(diaFilter && diaFilter.value) {
+    const diaSeleccionado = diaFilter.value; // formato YYYY-MM-DD
+    filtered = filtered.filter(t => t.fecha && t.fecha.slice(0,10) === diaSeleccionado);
+  }
   if (currentCaract !== 'todas') filtered = filtered.filter(t => t.caracter === currentCaract);
   if (currentEstado !== 'todas-e') filtered = filtered.filter(t => t.estado === currentEstado);
 
@@ -1134,6 +1150,18 @@ window.selectTipo = function(tipo) {
 // DAY FILTER
 window.clearDayFilter = function() {
   document.getElementById('filter-dia').value = '';
+  document.getElementById('btn-hoy').classList.remove('active');
+  renderTasks();
+}
+
+window.filtrarHoy = function() {
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth()+1).padStart(2,'0');
+  const dd = String(hoy.getDate()).padStart(2,'0');
+  const fechaHoy = yyyy+'-'+mm+'-'+dd;
+  document.getElementById('filter-dia').value = fechaHoy;
+  document.getElementById('btn-hoy').classList.add('active');
   renderTasks();
 }
 
@@ -1151,6 +1179,7 @@ window.abrirEditTarea = function(e, id) {
   document.getElementById('edit-fecha').value = t.fecha||'';
   document.getElementById('edit-hora').value = t.hora||'';
   document.getElementById('edit-descripcion').value = t.descripcion||'';
+  document.getElementById('edit-destinatario').value = t.derivado||'';
   editCaractActual = t.caracter||'Moderado';
   updateEditCaractUI();
   document.getElementById('edit-task-drawer').style.right = '0';
@@ -1185,6 +1214,7 @@ window.guardarEdicionTarea = async function() {
     fecha: document.getElementById('edit-fecha').value,
     hora: document.getElementById('edit-hora').value,
     descripcion: document.getElementById('edit-descripcion').value,
+    derivado: document.getElementById('edit-destinatario').value,
   });
   closeEditDrawer();
 }
