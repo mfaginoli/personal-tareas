@@ -1069,29 +1069,43 @@ function getFiltered() {
   const hoy = new Date().toISOString().split('T')[0];
   let filtered = [...tareas];
 
-  if (currentView === 'urgentes') filtered = filtered.filter(t => t.caracter === 'Urgente' && t.estado !== 'Finalizada');
-  else if (currentView === 'delegadas') filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
-  else if (currentView === 'vencidas') filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
-  else if (currentView === 'finalizadas') filtered = filtered.filter(t => t.estado === 'Finalizada');
-  else if (currentEstado === 'Finalizada') filtered = filtered; // show all including finalizadas
-  else if (currentEstado === 'todas-e') filtered = filtered.filter(t => t.estado !== 'Finalizada');
-  else if (currentView === 'todas') filtered = filtered.filter(t => t.estado !== 'Finalizada');
-  else if (currentArea) filtered = filtered.filter(t => t.estado !== 'Finalizada');
-  else if (currentArea) filtered = filtered.filter(t => t.area === currentArea);
+  // 1. Apply view/area filter first
+  if (currentView === 'urgentes') {
+    filtered = filtered.filter(t => t.caracter === 'Urgente' && t.estado !== 'Finalizada');
+  } else if (currentView === 'delegadas') {
+    filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
+    const personaFilter = document.getElementById('filter-persona');
+    if(personaFilter && personaFilter.value) {
+      filtered = filtered.filter(t => t.derivado === personaFilter.value);
+    }
+  } else if (currentView === 'vencidas') {
+    filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
+  } else if (currentView === 'finalizadas') {
+    filtered = filtered.filter(t => t.estado === 'Finalizada');
+  } else if (currentArea) {
+    filtered = filtered.filter(t => t.area === currentArea && t.estado !== 'Finalizada');
+  } else {
+    // todas
+    if (currentEstado !== 'Finalizada') filtered = filtered.filter(t => t.estado !== 'Finalizada');
+  }
 
-  // Filter by persona if delegadas view
-  const personaFilter = document.getElementById('filter-persona');
-  if(currentView === 'delegadas' && personaFilter && personaFilter.value) {
-    filtered = filtered.filter(t => t.derivado === personaFilter.value);
+  // 2. Apply caracter filter (works on top of any view)
+  if (currentCaract !== 'todas') {
+    filtered = filtered.filter(t => t.caracter === currentCaract);
   }
-  // Day filter
-  const diaFilter = document.getElementById('filter-dia');
-  if(diaFilter && diaFilter.value) {
-    const diaSeleccionado = diaFilter.value; // formato YYYY-MM-DD
-    filtered = filtered.filter(t => t.fecha && t.fecha.slice(0,10) === diaSeleccionado);
+
+  // 3. Apply estado filter
+  if (currentEstado !== 'todas-e') {
+    filtered = filtered.filter(t => t.estado === currentEstado);
   }
-  if (currentCaract !== 'todas') filtered = filtered.filter(t => t.caracter === currentCaract);
-  if (currentEstado !== 'todas-e') filtered = filtered.filter(t => t.estado === currentEstado);
+
+  // 4. Apply day filter (highest priority - overrides everything)
+  const diaValue = document.getElementById('filter-dia')?.value;
+  if (diaValue) {
+    filtered = [...tareas].filter(t => t.fecha && t.fecha.slice(0,10) === diaValue);
+    // Re-apply caracter if active
+    if (currentCaract !== 'todas') filtered = filtered.filter(t => t.caracter === currentCaract);
+  }
 
   return filtered;
 }
