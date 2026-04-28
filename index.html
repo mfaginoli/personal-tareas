@@ -656,6 +656,7 @@
       <select id="filter-persona" onchange="renderTasks()" style="width:100%;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-family:var(--font-body);margin-bottom:6px">
         <option value="">Todas las personas</option>
         <option>Martín</option>
+        <option>Lucas</option>
         <option>Mariano</option>
         <option>Hugo</option>
         <option>Proveedor</option>
@@ -696,10 +697,10 @@
       Ventas
       <span class="nav-badge" id="badge-Ventas">0</span>
     </div>
-    <div class="nav-item" onclick="setArea('Finanzas Personales')">
+    <div class="nav-item" onclick="setArea('Personales')">
       <div class="dot" style="background:#e06b9e"></div>
       Finanzas Personales
-      <span class="nav-badge" id="badge-Finanzas Personales">0</span>
+      <span class="nav-badge" id="badge-Personales">0</span>
     </div>
   </div>
 
@@ -751,7 +752,12 @@
       <button class="filter-chip" onclick="setEstado('Finalizada', this)">Finalizada</button>
       <div class="filter-sep"></div>
       <button class="filter-chip" id="btn-hoy" onclick="filtrarHoy()" style="font-size:12px">📅 Hoy</button>
-      <input type="date" id="filter-dia" class="form-input" onchange="renderTasks()" style="padding:4px 10px;font-size:12px;width:auto;border-radius:20px" title="Filtrar por día">
+      <div style="display:flex;align-items:center;gap:4px">
+        <button onclick="cambiarDia(-1)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;font-size:13px;font-family:var(--font-body)">‹</button>
+        <span id="dia-label" style="font-size:12px;color:#475569;min-width:80px;text-align:center">dd/mm/aaaa</span>
+        <button onclick="cambiarDia(1)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;font-size:13px;font-family:var(--font-body)">›</button>
+      </div>
+      <input type="hidden" id="filter-dia" value="">
       <button class="filter-chip" onclick="clearDayFilter()" style="font-size:11px">× Limpiar</button>
     </div>
 
@@ -787,7 +793,7 @@
             <option>Adm. Propiedades</option>
             <option>Alquileres</option>
             <option>Ventas</option>
-            <option>Finanzas Personales</option>
+            <option>Personales</option>
           </select>
         </div>
         <div class="form-group">
@@ -842,6 +848,7 @@
             <select class="form-select" id="f-destinatario" onchange="checkOtro()">
               <option value="">Seleccionar</option>
               <option>Martín</option>
+              <option>Lucas</option>
               <option>Mariano</option>
               <option>Hugo</option>
               <option>Proveedor</option>
@@ -891,7 +898,7 @@
       <option>Adm. Propiedades</option>
       <option>Alquileres</option>
       <option>Ventas</option>
-      <option>Finanzas Personales</option>
+      <option>Personales</option>
     </select>
   </div>
   <div style="margin-bottom:14px">
@@ -922,6 +929,7 @@
     <select class="form-select" id="edit-destinatario">
       <option value="">Sin derivar</option>
       <option>Martín</option>
+      <option>Lucas</option>
       <option>Mariano</option>
       <option>Hugo</option>
       <option>Proveedor</option>
@@ -1152,7 +1160,10 @@ window.selectTipo = function(tipo) {
 
 // DAY FILTER
 window.clearDayFilter = function() {
+  diaFiltroDate = null;
   document.getElementById('filter-dia').value = '';
+  document.getElementById('dia-label').textContent = 'dd/mm/aaaa';
+  document.getElementById('dia-label').style.color = '#475569';
   const btn = document.getElementById('btn-hoy');
   if(btn) btn.classList.remove('active');
   renderTasks();
@@ -1258,15 +1269,41 @@ window.clearDayFilter = function() {
   renderTasks();
 }
 
-window.filtrarHoy = function() {
-  const hoy = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm = String(hoy.getMonth()+1).padStart(2,'0');
-  const dd = String(hoy.getDate()).padStart(2,'0');
-  const fechaHoy = yyyy+'-'+mm+'-'+dd;
-  document.getElementById('filter-dia').value = fechaHoy;
-  document.getElementById('btn-hoy').classList.add('active');
+let diaFiltroDate = null;
+
+function formatDiaLabel(d) {
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return dd+'/'+mm+'/'+yyyy;
+}
+
+function formatDiaValue(d) {
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return yyyy+'-'+mm+'-'+dd;
+}
+
+function setDiaFiltro(d) {
+  diaFiltroDate = d;
+  document.getElementById('filter-dia').value = formatDiaValue(d);
+  document.getElementById('dia-label').textContent = formatDiaLabel(d);
+  document.getElementById('dia-label').style.color = '#0891b2';
   renderTasks();
+}
+
+window.filtrarHoy = function() {
+  setDiaFiltro(new Date());
+  document.getElementById('btn-hoy').classList.add('active');
+}
+
+window.cambiarDia = function(delta) {
+  const base = diaFiltroDate || new Date();
+  const nueva = new Date(base);
+  nueva.setDate(nueva.getDate() + delta);
+  setDiaFiltro(nueva);
+  document.getElementById('btn-hoy').classList.remove('active');
 }
 
 // EDIT DRAWER
@@ -1365,12 +1402,16 @@ window.setArea = function(area) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   event.target.closest('.nav-item').classList.add('active');
   document.getElementById('page-title').textContent = area;
+  // Don't reset caracter or estado filters
   renderTasks();
 }
 
 window.setCaract = function(c, el) {
   currentCaract = c;
-  document.querySelectorAll('.filter-chip').forEach(e => { if(['todas','Urgente','Moderado','Sin urgencia'].includes(e.textContent.trim().replace(/🔴|🟠|🟢/g,'').trim())) e.classList.remove('active'); });
+  document.querySelectorAll('.filter-chip').forEach(e => {
+    const txt = e.textContent.trim().replace(/🔴|🟠|🟢/g,'').trim();
+    if(['todas','Urgente','Moderado','Sin urgencia'].includes(txt)) e.classList.remove('active');
+  });
   el.classList.add('active');
   renderTasks();
 }
