@@ -653,8 +653,9 @@
       <span class="nav-badge" id="badge-delegadas">0</span>
     </div>
     <div id="delegadas-filter" style="display:none;padding:4px 12px 0">
-      <select id="filter-persona" onchange="renderTasks()" style="width:100%;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-family:var(--font-body);margin-bottom:6px">
+      <select id="filter-persona" onchange="filtrarPorPersona(this.value)" style="width:100%;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-family:var(--font-body);margin-bottom:6px">
         <option value="">Todas las personas</option>
+        <option>Yo (Matias)</option>
         <option>Martín</option>
         <option>Lucas</option>
         <option>Mariano</option>
@@ -699,7 +700,7 @@
     </div>
     <div class="nav-item" onclick="setArea('Personales')">
       <div class="dot" style="background:#e06b9e"></div>
-      Finanzas Personales
+      Personales
       <span class="nav-badge" id="badge-Personales">0</span>
     </div>
   </div>
@@ -847,6 +848,7 @@
             <label class="form-label">Destinatario</label>
             <select class="form-select" id="f-destinatario" onchange="checkOtro()">
               <option value="">Seleccionar</option>
+              <option>Yo (Matias)</option>
               <option>Martín</option>
               <option>Lucas</option>
               <option>Mariano</option>
@@ -928,6 +930,7 @@
     <label style="display:block;font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px">Derivar a</label>
     <select class="form-select" id="edit-destinatario">
       <option value="">Sin derivar</option>
+      <option>Yo (Matias)</option>
       <option>Martín</option>
       <option>Lucas</option>
       <option>Mariano</option>
@@ -1059,7 +1062,7 @@ function updateBadges() {
   document.getElementById('badge-delegadas').textContent = activas.filter(t => t.derivado).length;
   document.getElementById('badge-vencidas').textContent = activas.filter(t => t.fecha && t.fecha < hoy).length;
   document.getElementById('badge-finalizadas').textContent = tareas.filter(t => t.estado === 'Finalizada').length;
-  ['Adm. Consorcios','Adm. Propiedades','Alquileres','Ventas','Finanzas Personales'].forEach(area => {
+  ['Adm. Consorcios','Adm. Propiedades','Alquileres','Ventas','Personales'].forEach(area => {
     const el = document.getElementById('badge-' + area);
     if (el) el.textContent = activas.filter(t => t.area === area).length;
   });
@@ -1397,6 +1400,10 @@ function formatFecha(f) {
 }
 
 // VIEWS
+window.filtrarPorPersona = function(persona) {
+  renderTasks();
+}
+
 window.setView = function(view) {
   currentView = view;
   currentArea = null;
