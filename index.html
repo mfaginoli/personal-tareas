@@ -755,8 +755,9 @@
       <button class="filter-chip" id="btn-hoy" onclick="filtrarHoy()" style="font-size:12px">📅 Hoy</button>
       <div style="display:flex;align-items:center;gap:4px">
         <button onclick="cambiarDia(-1)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;font-size:13px;font-family:var(--font-body)">‹</button>
-        <span id="dia-label" style="font-size:12px;color:#475569;min-width:80px;text-align:center">dd/mm/aaaa</span>
+        <span id="dia-label" style="font-size:12px;color:#475569;min-width:80px;text-align:center;cursor:pointer" onclick="document.getElementById('filter-dia-picker').showPicker?document.getElementById('filter-dia-picker').showPicker():document.getElementById('filter-dia-picker').click()">dd/mm/aaaa</span>
         <button onclick="cambiarDia(1)" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;cursor:pointer;font-size:13px;font-family:var(--font-body)">›</button>
+        <input type="date" id="filter-dia-picker" style="position:absolute;opacity:0;width:1px;height:1px" onchange="seleccionarDesdePicker(this.value)">
       </div>
       <input type="hidden" id="filter-dia" value="">
       <button class="filter-chip" onclick="clearDayFilter()" style="font-size:11px">× Limpiar</button>
@@ -824,12 +825,30 @@
       </div>
       <div class="form-group">
         <label class="form-label">Recurrente</label>
-        <select class="form-select" id="f-recurrente">
+        <select class="form-select" id="f-recurrente" onchange="toggleRecurrenciaOpts()">
           <option value="">No recurrente</option>
           <option value="diario">Diario</option>
-          <option value="semanal">Semanal</option>
+          <option value="semanal">Semanal (elegir días)</option>
           <option value="mensual">Mensual</option>
         </select>
+      </div>
+      <div id="recurrencia-opts" style="display:none">
+        <div class="form-group" id="dias-semana-group" style="display:none">
+          <label class="form-label">Días de la semana</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="1" class="dia-check"> Lun</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="2" class="dia-check"> Mar</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="3" class="dia-check"> Mié</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="4" class="dia-check"> Jue</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="5" class="dia-check"> Vie</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="6" class="dia-check"> Sáb</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="0" class="dia-check"> Dom</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Repetir hasta</label>
+          <input type="date" class="form-input" id="f-recurrente-hasta">
+        </div>
       </div>
 
       <div class="form-group">
@@ -1061,6 +1080,8 @@ function updateBadges() {
   document.getElementById('badge-urgentes').textContent = activas.filter(t => t.caracter === 'Urgente').length;
   document.getElementById('badge-delegadas').textContent = activas.filter(t => t.derivado).length;
   document.getElementById('badge-vencidas').textContent = activas.filter(t => t.fecha && t.fecha < hoy).length;
+  const enProcesoBadge = document.getElementById('badge-en-proceso');
+  if(enProcesoBadge) enProcesoBadge.textContent = tareas.filter(t => t.estado === 'En proceso').length;
   document.getElementById('badge-finalizadas').textContent = tareas.filter(t => t.estado === 'Finalizada').length;
   ['Adm. Consorcios','Adm. Propiedades','Alquileres','Ventas','Personales'].forEach(area => {
     const el = document.getElementById('badge-' + area);
@@ -1072,42 +1093,49 @@ function getFiltered() {
   const hoy = new Date().toISOString().split('T')[0];
   let filtered = [...tareas];
 
-  // 1. Apply view/area filter first
-  if (currentView === 'urgentes') {
-    filtered = filtered.filter(t => t.caracter === 'Urgente' && t.estado !== 'Finalizada');
-  } else if (currentView === 'delegadas') {
-    filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
-    const personaFilter = document.getElementById('filter-persona');
-    if(personaFilter && personaFilter.value) {
-      filtered = filtered.filter(t => t.derivado === personaFilter.value);
-    }
-  } else if (currentView === 'vencidas') {
-    filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
-  } else if (currentView === 'finalizadas') {
-    filtered = filtered.filter(t => t.estado === 'Finalizada');
-  } else if (currentArea) {
-    filtered = filtered.filter(t => t.area === currentArea && t.estado !== 'Finalizada');
+  // 1. Day filter has highest priority
+  const diaValue = document.getElementById('filter-dia')?.value;
+  if (diaValue) {
+    filtered = filtered.filter(t => t.fecha && t.fecha.slice(0,10) === diaValue);
   } else {
-    // todas
-    if (currentEstado !== 'Finalizada') filtered = filtered.filter(t => t.estado !== 'Finalizada');
+    // Apply view/area filter
+    if (currentView === 'urgentes') {
+      filtered = filtered.filter(t => t.caracter === 'Urgente' && t.estado !== 'Finalizada');
+    } else if (currentView === 'delegadas') {
+      filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
+      const personaFilter = document.getElementById('filter-persona');
+      if(personaFilter && personaFilter.value) {
+        filtered = filtered.filter(t => t.derivado === personaFilter.value);
+      }
+    } else if (currentView === 'en-proceso') {
+      filtered = filtered.filter(t => t.estado === 'En proceso');
+    } else if (currentView === 'vencidas') {
+      filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
+    } else if (currentView === 'finalizadas') {
+      filtered = filtered.filter(t => t.estado === 'Finalizada');
+    } else if (currentArea) {
+      filtered = filtered.filter(t => t.area === currentArea && t.estado !== 'Finalizada');
+    } else {
+      filtered = filtered.filter(t => t.estado !== 'Finalizada');
+    }
   }
 
-  // 2. Apply caracter filter (works on top of any view)
+  // 2. Apply caracter filter on top (combines with any view)
   if (currentCaract !== 'todas') {
     filtered = filtered.filter(t => t.caracter === currentCaract);
   }
 
-  // 3. Apply estado filter
-  if (currentEstado !== 'todas-e') {
+  // 3. Apply estado filter on top (except for views that already filter by estado)
+  if (currentEstado !== 'todas-e' && currentView !== 'finalizadas' && currentView !== 'en-proceso') {
     filtered = filtered.filter(t => t.estado === currentEstado);
   }
 
-  // 4. Apply day filter (highest priority - overrides everything)
-  const diaValue = document.getElementById('filter-dia')?.value;
-  if (diaValue) {
-    filtered = [...tareas].filter(t => t.fecha && t.fecha.slice(0,10) === diaValue);
-    // Re-apply caracter if active
-    if (currentCaract !== 'todas') filtered = filtered.filter(t => t.caracter === currentCaract);
+  // 4. Persona filter always combines
+  if(currentView === 'delegadas') {
+    const personaFilter = document.getElementById('filter-persona');
+    if(personaFilter && personaFilter.value) {
+      filtered = filtered.filter(t => t.derivado === personaFilter.value);
+    }
   }
 
   return filtered;
@@ -1400,6 +1428,68 @@ function formatFecha(f) {
 }
 
 // VIEWS
+
+// RECURRENCIA OPTS
+window.toggleRecurrenciaOpts = function() {
+  const val = document.getElementById('f-recurrente').value;
+  const opts = document.getElementById('recurrencia-opts');
+  const diasGroup = document.getElementById('dias-semana-group');
+  opts.style.display = val ? 'block' : 'none';
+  diasGroup.style.display = val === 'semanal' ? 'block' : 'none';
+}
+
+// DATE PICKER
+window.seleccionarDesdePicker = function(val) {
+  if(!val) return;
+  const parts = val.split('-');
+  const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  setDiaFiltro(d);
+  document.getElementById('btn-hoy').classList.remove('active');
+}
+
+// GENERAR TAREAS RECURRENTES
+async function generarTareasRecurrentes(tareaBase, recurrencia, diasSemana, hasta) {
+  const fechaInicio = new Date(tareaBase.fecha);
+  const fechaHasta = new Date(hasta);
+  const tareas_a_crear = [];
+  
+  let fechaActual = new Date(fechaInicio);
+  fechaActual.setDate(fechaActual.getDate() + 1); // Start from day after
+  
+  while(fechaActual <= fechaHasta) {
+    let agregar = false;
+    
+    if(recurrencia === 'diario') {
+      agregar = true;
+    } else if(recurrencia === 'semanal') {
+      const diaSemana = fechaActual.getDay(); // 0=Dom, 1=Lun...
+      agregar = diasSemana.includes(String(diaSemana));
+    } else if(recurrencia === 'mensual') {
+      agregar = fechaActual.getDate() === fechaInicio.getDate();
+    }
+    
+    if(agregar) {
+      const yyyy = fechaActual.getFullYear();
+      const mm = String(fechaActual.getMonth()+1).padStart(2,'0');
+      const dd = String(fechaActual.getDate()).padStart(2,'0');
+      tareas_a_crear.push({
+        ...tareaBase,
+        fecha: yyyy+'-'+mm+'-'+dd,
+        recurrenciaGrupo: tareaBase.recurrenciaGrupo,
+        createdAt: new Date().toISOString()
+      });
+    }
+    
+    fechaActual.setDate(fechaActual.getDate() + 1);
+  }
+  
+  // Save all in batches
+  for(const t of tareas_a_crear) {
+    await addDoc(collection(db,"tareas"), t);
+  }
+  return tareas_a_crear.length;
+}
+
 window.filtrarPorPersona = function(persona) {
   renderTasks();
 }
@@ -1409,7 +1499,7 @@ window.setView = function(view) {
   currentArea = null;
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   event.target.closest('.nav-item').classList.add('active');
-  const titles = { todas: 'Todas las tareas', urgentes: 'Urgentes', delegadas: 'Delegadas', vencidas: 'Vencidas', finalizadas: 'Finalizadas' };
+  const titles = { todas: 'Todas las tareas', urgentes: 'Urgentes', delegadas: 'Delegadas', 'en-proceso': 'En proceso', vencidas: 'Vencidas', finalizadas: 'Finalizadas' };
   const filtroPersona = document.getElementById('delegadas-filter');
   if(filtroPersona) filtroPersona.style.display = view === 'delegadas' ? 'block' : 'none';
   if(view !== 'delegadas') { const fp = document.getElementById('filter-persona'); if(fp) fp.value = ''; }
