@@ -763,8 +763,80 @@
       <button class="filter-chip" onclick="clearDayFilter()" style="font-size:11px">× Limpiar</button>
     </div>
 
+    <!-- DASHBOARD -->
+    <div id="dashboard-view" style="display:none;padding:0">
+
+      <!-- HOY -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500">HOY — <span id="dash-fecha-hoy"></span></div>
+        <div id="dash-hoy-lista" style="display:flex;flex-direction:column;gap:8px">
+          <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px">Sin tareas para hoy</div>
+        </div>
+      </div>
+
+      <!-- SEMANA -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500">ESTA SEMANA</div>
+        <div id="dash-semana" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px"></div>
+      </div>
+
+      <!-- MÉTRICAS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:20px">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Urgentes</div>
+          <div style="font-size:28px;font-weight:600;color:#dc2626" id="dash-cnt-urgentes">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">pendientes</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Vencidas</div>
+          <div style="font-size:28px;font-weight:600;color:#f97316" id="dash-cnt-vencidas">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">sin resolver</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">En proceso</div>
+          <div style="font-size:28px;font-weight:600;color:#0891b2" id="dash-cnt-proceso">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">en curso</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Finalizadas hoy</div>
+          <div style="font-size:28px;font-weight:600;color:#059669" id="dash-cnt-fin-hoy">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">completadas</div>
+        </div>
+      </div>
+
+      <!-- DOS COLUMNAS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+        <!-- POR ÁREA -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">Tareas por área</div>
+          <div id="dash-por-area"></div>
+        </div>
+
+        <!-- POR COLABORADOR -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">Derivadas por persona</div>
+          <div id="dash-por-colab"></div>
+        </div>
+      </div>
+
+      <!-- URGENTES PENDIENTES -->
+      <div style="background:#fff;border:1px solid #fecaca;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-bottom:16px">
+        <div style="font-size:11px;color:#dc2626;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">🔴 Urgentes pendientes</div>
+        <div id="dash-urgentes-lista"></div>
+      </div>
+
+      <!-- VENCIDAS -->
+      <div style="background:#fff;border:1px solid #fed7aa;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+        <div style="font-size:11px;color:#f97316;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">⚠️ Vencidas sin resolver</div>
+        <div id="dash-vencidas-lista"></div>
+      </div>
+
+    </div>
+
     <!-- TASK LIST -->
-    <div class="task-list" id="task-list">
+    <div class="task-list" id="task-list" style="display:none">    <!-- TASK LIST -->
+    <div class="task-list" id="task-list" style="display:none">
       <div class="empty-state">
         <div class="empty-state-icon">📋</div>
         <div class="empty-state-text">Cargando tareas...</div>
@@ -1035,7 +1107,7 @@ const db = getFirestore(app);
 
 // STATE
 let tareas = [];
-let currentView = 'todas';
+let currentView = 'dashboard';
 let currentArea = null;
 let currentCaract = 'todas';
 let currentEstado = 'todas-e';
@@ -1062,6 +1134,7 @@ function renderAll() {
   updateMetrics();
   updateBadges();
   renderTasks();
+  if(currentView === 'dashboard') renderDashboard();
 }
 
 function updateMetrics() {
@@ -1429,6 +1502,191 @@ function formatFecha(f) {
 
 // VIEWS
 
+
+// DASHBOARD
+function renderDashboard() {
+  const hoy = new Date();
+  const hoyStr = hoy.toISOString().split('T')[0];
+  const nombDias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  
+  // Fecha hoy label
+  const elFechaHoy = document.getElementById('dash-fecha-hoy');
+  if(elFechaHoy) elFechaHoy.textContent = nombDias[hoy.getDay()] + ' ' + hoy.getDate() + ' de ' + meses[hoy.getMonth()];
+
+  const activas = tareas.filter(t => t.estado !== 'Finalizada');
+  const urgentes = activas.filter(t => t.caracter === 'Urgente');
+  const vencidas = activas.filter(t => t.fecha && t.fecha < hoyStr);
+  const enProceso = activas.filter(t => t.estado === 'En proceso');
+  const finHoy = tareas.filter(t => t.estado === 'Finalizada' && t.updatedAt && t.updatedAt.startsWith(hoyStr));
+
+  // Métricas
+  const setCnt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setCnt('dash-cnt-urgentes', urgentes.length);
+  setCnt('dash-cnt-vencidas', vencidas.length);
+  setCnt('dash-cnt-proceso', enProceso.length);
+  setCnt('dash-cnt-fin-hoy', finHoy.length);
+
+  // Tareas de hoy
+  const tareasHoy = activas.filter(t => t.fecha && t.fecha === hoyStr)
+    .sort((a,b) => {
+      const orden = { Urgente:0, Moderado:1, 'Sin urgencia':2 };
+      return (orden[a.caracter]||1) - (orden[b.caracter]||1);
+    });
+  
+  const elHoy = document.getElementById('dash-hoy-lista');
+  if(elHoy) {
+    if(tareasHoy.length === 0) {
+      elHoy.innerHTML = '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:13px">Sin tareas programadas para hoy</div>';
+    } else {
+      const colores = { Urgente:'#dc2626', Moderado:'#d97706', 'Sin urgencia':'#059669' };
+      elHoy.innerHTML = tareasHoy.map(t => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid ${colores[t.caracter]||'#e2e8f0'}">
+          <input type="checkbox" ${t.estado==='Finalizada'?'checked':''} onchange="cambiarEstado('${t.id}')" style="cursor:pointer;width:16px;height:16px;accent-color:#059669">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:#0f172a">${t.titulo}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">${t.area}${t.hora?' · ⏰ '+t.hora:''}${t.derivado?' · 👤 '+t.derivado:''}</div>
+          </div>
+          <span style="font-size:10px;padding:2px 7px;border-radius:4px;background:${colores[t.caracter]+'20'};color:${colores[t.caracter]}">${t.caracter}</span>
+        </div>`).join('');
+    }
+  }
+
+  // Semana (7 días desde hoy)
+  const elSemana = document.getElementById('dash-semana');
+  if(elSemana) {
+    let semanaHTML = '';
+    for(let i=0; i<7; i++) {
+      const d = new Date(hoy);
+      d.setDate(hoy.getDate() + i);
+      const dStr = d.toISOString().split('T')[0];
+      const cnt = activas.filter(t => t.fecha && t.fecha === dStr).length;
+      const urgCnt = activas.filter(t => t.fecha === dStr && t.caracter === 'Urgente').length;
+      const esHoy = i === 0;
+      semanaHTML += `
+        <div onclick="irADia('${dStr}')" style="background:${esHoy?'#0891b2':'#fff'};border:1px solid ${esHoy?'#0891b2':'#e2e8f0'};border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
+          <div style="font-size:10px;color:${esHoy?'rgba(255,255,255,0.8)':'#94a3b8'};margin-bottom:4px">${nombDias[d.getDay()]}</div>
+          <div style="font-size:16px;font-weight:600;color:${esHoy?'#fff':'#0f172a'}">${d.getDate()}</div>
+          <div style="font-size:11px;color:${esHoy?'rgba(255,255,255,0.9)':'#475569'};margin-top:4px">${cnt > 0 ? cnt+' tarea'+(cnt>1?'s':'') : '—'}</div>
+          ${urgCnt > 0 ? `<div style="font-size:10px;color:${esHoy?'#fca5a5':'#dc2626'};margin-top:2px">🔴 ${urgCnt}</div>` : ''}
+        </div>`;
+    }
+    elSemana.innerHTML = semanaHTML;
+  }
+
+  // Por área
+  const areas = ['Adm. Consorcios','Adm. Propiedades','Alquileres','Ventas','Personales'];
+  const elArea = document.getElementById('dash-por-area');
+  if(elArea) {
+    const maxArea = Math.max(...areas.map(a => activas.filter(t=>t.area===a).length), 1);
+    elArea.innerHTML = areas.map(a => {
+      const cnt = activas.filter(t=>t.area===a).length;
+      const urg = activas.filter(t=>t.area===a&&t.caracter==='Urgente').length;
+      return `
+        <div style="margin-bottom:10px;cursor:pointer" onclick="irAArea('${a}')">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+            <span style="color:#475569">${a}</span>
+            <span style="color:#0f172a;font-weight:500">${cnt}${urg>0?' 🔴'+urg:''}</span>
+          </div>
+          <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${cnt?(cnt/maxArea*100):0}%;background:${urg>0?'#dc2626':'#0891b2'};border-radius:3px;transition:width 0.3s"></div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Por colaborador
+  const colabs = ['Yo (Matias)','Martín','Lucas','Mariano','Hugo','Proveedor'];
+  const elColab = document.getElementById('dash-por-colab');
+  if(elColab) {
+    const cobData = colabs.map(c => ({
+      nombre: c,
+      total: activas.filter(t=>t.derivado===c).length,
+      urgentes: activas.filter(t=>t.derivado===c&&t.caracter==='Urgente').length,
+      vencidas: activas.filter(t=>t.derivado===c&&t.fecha&&t.fecha<hoyStr).length
+    })).filter(c => c.total > 0);
+    
+    if(cobData.length === 0) {
+      elColab.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px">Sin tareas derivadas</div>';
+    } else {
+      elColab.innerHTML = cobData.map(c => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;cursor:pointer" onclick="irAPersona('${c.nombre}')">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#0f172a">${c.nombre}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:1px">${c.total} tarea${c.total>1?'s':''}${c.vencidas>0?' · '+c.vencidas+' vencida'+(c.vencidas>1?'s':''):''}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            ${c.urgentes>0?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#fef2f2;color:#dc2626">🔴 ${c.urgentes}</span>`:''}
+            <span style="font-size:12px;padding:3px 10px;border-radius:6px;background:#f0f9ff;color:#0891b2;font-weight:500">${c.total}</span>
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  // Urgentes lista
+  const elUrg = document.getElementById('dash-urgentes-lista');
+  if(elUrg) {
+    const urgList = urgentes.slice(0,5);
+    elUrg.innerHTML = urgList.length ? urgList.map(t => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #fef2f2">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:#0f172a">${t.titulo}</div>
+          <div style="font-size:11px;color:#94a3b8">${t.area}${t.fecha?' · '+t.fecha.split('-').reverse().join('/'):''}</div>
+        </div>
+        ${t.derivado?`<span style="font-size:11px;color:#475569">👤 ${t.derivado}</span>`:''}
+        <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#475569">${t.estado}</span>
+      </div>`).join('') + (urgentes.length > 5 ? `<div style="font-size:12px;color:#0891b2;margin-top:8px;cursor:pointer" onclick="irAView('urgentes')">Ver todas (${urgentes.length}) →</div>` : '')
+      : '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:12px">Sin urgentes pendientes 🎉</div>';
+  }
+
+  // Vencidas lista
+  const elVenc = document.getElementById('dash-vencidas-lista');
+  if(elVenc) {
+    const vencList = vencidas.slice(0,5);
+    elVenc.innerHTML = vencList.length ? vencList.map(t => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #fff7ed">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:#0f172a">${t.titulo}</div>
+          <div style="font-size:11px;color:#f97316">${t.area} · venció ${t.fecha.split('-').reverse().join('/')}</div>
+        </div>
+        <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#fff7ed;color:#f97316">${t.estado}</span>
+      </div>`).join('') + (vencidas.length > 5 ? `<div style="font-size:12px;color:#0891b2;margin-top:8px;cursor:pointer" onclick="irAView('vencidas')">Ver todas (${vencidas.length}) →</div>` : '')
+      : '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:12px">Sin vencidas 🎉</div>';
+  }
+}
+
+window.irADia = function(fecha) {
+  // Set day filter and go to todas view
+  document.getElementById('filter-dia').value = fecha;
+  const parts = fecha.split('-');
+  const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  diaFiltroDate = d;
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  document.getElementById('dia-label').textContent = dd+'/'+mm+'/'+yyyy;
+  document.getElementById('dia-label').style.color = '#0891b2';
+  setView('todas');
+  // Activate todas nav
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-todas')?.classList.add('active');
+}
+
+window.irAArea = function(area) {
+  setArea(area);
+  document.getElementById('dashboard-view').style.display = 'none';
+  document.getElementById('task-list').style.display = 'block';
+}
+
+window.irAPersona = function(persona) {
+  document.getElementById('filter-persona').value = persona;
+  setView('delegadas');
+}
+
+window.irAView = function(view) {
+  setView(view);
+}
+
 // RECURRENCIA OPTS
 window.toggleRecurrenciaOpts = function() {
   const val = document.getElementById('f-recurrente').value;
@@ -1497,9 +1755,23 @@ window.filtrarPorPersona = function(persona) {
 window.setView = function(view) {
   currentView = view;
   currentArea = null;
+  // Show/hide dashboard vs task list
+  const dashView = document.getElementById('dashboard-view');
+  const taskList = document.getElementById('task-list');
+  const filtersBar = document.querySelector('.filters');
+  if(view === 'dashboard') {
+    if(dashView) dashView.style.display = 'block';
+    if(taskList) taskList.style.display = 'none';
+    if(filtersBar) filtersBar.style.display = 'none';
+    renderDashboard();
+  } else {
+    if(dashView) dashView.style.display = 'none';
+    if(taskList) taskList.style.display = 'block';
+    if(filtersBar) filtersBar.style.display = 'flex';
+  }
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   event.target.closest('.nav-item').classList.add('active');
-  const titles = { todas: 'Todas las tareas', urgentes: 'Urgentes', delegadas: 'Delegadas', 'en-proceso': 'En proceso', vencidas: 'Vencidas', finalizadas: 'Finalizadas' };
+  const titles = { dashboard: 'Dashboard', todas: 'Todas las tareas', urgentes: 'Urgentes', delegadas: 'Delegadas', 'en-proceso': 'En proceso', vencidas: 'Vencidas', finalizadas: 'Finalizadas' };
   const filtroPersona = document.getElementById('delegadas-filter');
   if(filtroPersona) filtroPersona.style.display = view === 'delegadas' ? 'block' : 'none';
   if(view !== 'delegadas') { const fp = document.getElementById('filter-persona'); if(fp) fp.value = ''; }
