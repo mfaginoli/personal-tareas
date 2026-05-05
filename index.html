@@ -764,72 +764,64 @@
     </div>
 
     <!-- DASHBOARD -->
-    <div id="dashboard-view" style="display:none;padding:0">
+    <div id="dashboard-view" style="display:none">
 
-      <!-- HOY -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500">HOY — <span id="dash-fecha-hoy"></span></div>
-        <div id="dash-hoy-lista" style="display:flex;flex-direction:column;gap:8px">
-          <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px">Sin tareas para hoy</div>
+      <!-- MÉTRICAS -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+        <div style="background:#f8fafc;border-radius:8px;padding:12px 14px;cursor:pointer" onclick="irAView('urgentes')">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Urgentes</div>
+          <div style="font-size:26px;font-weight:500;color:#A32D2D;line-height:1.1" id="dash-cnt-urgentes">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">pendientes</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:8px;padding:12px 14px;cursor:pointer" onclick="irAView('vencidas')">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Vencidas</div>
+          <div style="font-size:26px;font-weight:500;color:#854F0B;line-height:1.1" id="dash-cnt-vencidas">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">sin resolver</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:8px;padding:12px 14px;cursor:pointer" onclick="irAView('en-proceso')">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">En proceso</div>
+          <div style="font-size:26px;font-weight:500;color:#185FA5;line-height:1.1" id="dash-cnt-proceso">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">en curso</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:8px;padding:12px 14px">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Completadas hoy</div>
+          <div style="font-size:26px;font-weight:500;color:#3B6D11;line-height:1.1" id="dash-cnt-fin-hoy">0</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">finalizadas</div>
         </div>
       </div>
 
       <!-- SEMANA -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500">ESTA SEMANA</div>
+      <div style="background:#fff;border:0.5px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:12px">
+        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-weight:500">Esta semana — <span id="dash-fecha-hoy" style="text-transform:none;letter-spacing:0;font-weight:400;color:#64748b"></span></div>
         <div id="dash-semana" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px"></div>
       </div>
 
-      <!-- MÉTRICAS -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:20px">
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Urgentes</div>
-          <div style="font-size:28px;font-weight:600;color:#dc2626" id="dash-cnt-urgentes">0</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px">pendientes</div>
+      <!-- KANBAN -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#A32D2D;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">Pendiente <span style="font-size:11px;padding:1px 7px;border-radius:20px;background:#f1f5f9;color:#64748b" id="dash-k-pend-cnt">0</span></div>
+          <div id="dash-k-pend" style="border-top:2px solid #F09595;padding-top:10px"></div>
         </div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Vencidas</div>
-          <div style="font-size:28px;font-weight:600;color:#f97316" id="dash-cnt-vencidas">0</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px">sin resolver</div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#185FA5;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">En proceso <span style="font-size:11px;padding:1px 7px;border-radius:20px;background:#f1f5f9;color:#64748b" id="dash-k-proc-cnt">0</span></div>
+          <div id="dash-k-proc" style="border-top:2px solid #85B7EB;padding-top:10px"></div>
         </div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">En proceso</div>
-          <div style="font-size:28px;font-weight:600;color:#0891b2" id="dash-cnt-proceso">0</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px">en curso</div>
-        </div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Finalizadas hoy</div>
-          <div style="font-size:28px;font-weight:600;color:#059669" id="dash-cnt-fin-hoy">0</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px">completadas</div>
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#3B6D11;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">Completadas hoy <span style="font-size:11px;padding:1px 7px;border-radius:20px;background:#f1f5f9;color:#64748b" id="dash-k-fin-cnt">0</span></div>
+          <div id="dash-k-fin" style="border-top:2px solid #97C459;padding-top:10px"></div>
         </div>
       </div>
 
-      <!-- DOS COLUMNAS -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-
-        <!-- POR ÁREA -->
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">Tareas por área</div>
+      <!-- BOTTOM: POR ÁREA + POR COLABORADOR -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#fff;border:0.5px solid #e2e8f0;border-radius:12px;padding:14px 16px">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;font-weight:500">Por área</div>
           <div id="dash-por-area"></div>
         </div>
-
-        <!-- POR COLABORADOR -->
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">Derivadas por persona</div>
+        <div style="background:#fff;border:0.5px solid #e2e8f0;border-radius:12px;padding:14px 16px">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;font-weight:500">Por colaborador</div>
           <div id="dash-por-colab"></div>
         </div>
-      </div>
-
-      <!-- URGENTES PENDIENTES -->
-      <div style="background:#fff;border:1px solid #fecaca;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-bottom:16px">
-        <div style="font-size:11px;color:#dc2626;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">🔴 Urgentes pendientes</div>
-        <div id="dash-urgentes-lista"></div>
-      </div>
-
-      <!-- VENCIDAS -->
-      <div style="background:#fff;border:1px solid #fed7aa;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-        <div style="font-size:11px;color:#f97316;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500">⚠️ Vencidas sin resolver</div>
-        <div id="dash-vencidas-lista"></div>
       </div>
 
     </div>
@@ -1166,49 +1158,35 @@ function getFiltered() {
   const hoy = new Date().toISOString().split('T')[0];
   let filtered = [...tareas];
 
-  // 1. Day filter has highest priority
   const diaValue = document.getElementById('filter-dia')?.value;
+
   if (diaValue) {
     filtered = filtered.filter(t => t.fecha && t.fecha.slice(0,10) === diaValue);
+  } else if (currentView === 'urgentes') {
+    filtered = filtered.filter(t => t.caracter === 'Urgente' && t.estado !== 'Finalizada');
+  } else if (currentView === 'delegadas') {
+    filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
+  } else if (currentView === 'en-proceso') {
+    filtered = filtered.filter(t => t.estado === 'En proceso');
+  } else if (currentView === 'vencidas') {
+    filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
+  } else if (currentView === 'finalizadas') {
+    filtered = filtered.filter(t => t.estado === 'Finalizada');
+  } else if (currentArea) {
+    filtered = filtered.filter(t => t.area === currentArea && t.estado !== 'Finalizada');
   } else {
-    // Apply view/area filter
-    if (currentView === 'urgentes') {
-      filtered = filtered.filter(t => t.caracter === 'Urgente' && t.estado !== 'Finalizada');
-    } else if (currentView === 'delegadas') {
-      filtered = filtered.filter(t => t.derivado && t.estado !== 'Finalizada');
-      const personaFilter = document.getElementById('filter-persona');
-      if(personaFilter && personaFilter.value) {
-        filtered = filtered.filter(t => t.derivado === personaFilter.value);
-      }
-    } else if (currentView === 'en-proceso') {
-      filtered = filtered.filter(t => t.estado === 'En proceso');
-    } else if (currentView === 'vencidas') {
-      filtered = filtered.filter(t => t.fecha && t.fecha < hoy && t.estado !== 'Finalizada');
-    } else if (currentView === 'finalizadas') {
-      filtered = filtered.filter(t => t.estado === 'Finalizada');
-    } else if (currentArea) {
-      filtered = filtered.filter(t => t.area === currentArea && t.estado !== 'Finalizada');
-    } else {
-      filtered = filtered.filter(t => t.estado !== 'Finalizada');
-    }
+    filtered = filtered.filter(t => t.estado !== 'Finalizada');
   }
 
-  // 2. Apply caracter filter on top (combines with any view)
-  if (currentCaract !== 'todas') {
-    filtered = filtered.filter(t => t.caracter === currentCaract);
-  }
+  if (currentCaract !== 'todas') filtered = filtered.filter(t => t.caracter === currentCaract);
 
-  // 3. Apply estado filter on top (except for views that already filter by estado)
   if (currentEstado !== 'todas-e' && currentView !== 'finalizadas' && currentView !== 'en-proceso') {
     filtered = filtered.filter(t => t.estado === currentEstado);
   }
 
-  // 4. Persona filter always combines
-  if(currentView === 'delegadas') {
-    const personaFilter = document.getElementById('filter-persona');
-    if(personaFilter && personaFilter.value) {
-      filtered = filtered.filter(t => t.derivado === personaFilter.value);
-    }
+  if (currentView === 'delegadas') {
+    const pf = document.getElementById('filter-persona');
+    if(pf && pf.value) filtered = filtered.filter(t => t.derivado === pf.value);
   }
 
   return filtered;
@@ -1509,8 +1487,7 @@ function renderDashboard() {
   const hoyStr = hoy.toISOString().split('T')[0];
   const nombDias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
   const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  
-  // Fecha hoy label
+
   const elFechaHoy = document.getElementById('dash-fecha-hoy');
   if(elFechaHoy) elFechaHoy.textContent = nombDias[hoy.getDay()] + ' ' + hoy.getDate() + ' de ' + meses[hoy.getMonth()];
 
@@ -1518,44 +1495,19 @@ function renderDashboard() {
   const urgentes = activas.filter(t => t.caracter === 'Urgente');
   const vencidas = activas.filter(t => t.fecha && t.fecha < hoyStr);
   const enProceso = activas.filter(t => t.estado === 'En proceso');
-  const finHoy = tareas.filter(t => t.estado === 'Finalizada' && t.updatedAt && t.updatedAt.startsWith(hoyStr));
+  const pendientes = activas.filter(t => t.estado === 'Pendiente');
+  const finHoy = tareas.filter(t => t.estado === 'Finalizada');
 
-  // Métricas
   const setCnt = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
   setCnt('dash-cnt-urgentes', urgentes.length);
   setCnt('dash-cnt-vencidas', vencidas.length);
   setCnt('dash-cnt-proceso', enProceso.length);
   setCnt('dash-cnt-fin-hoy', finHoy.length);
 
-  // Tareas de hoy
-  const tareasHoy = activas.filter(t => t.fecha && t.fecha === hoyStr)
-    .sort((a,b) => {
-      const orden = { Urgente:0, Moderado:1, 'Sin urgencia':2 };
-      return (orden[a.caracter]||1) - (orden[b.caracter]||1);
-    });
-  
-  const elHoy = document.getElementById('dash-hoy-lista');
-  if(elHoy) {
-    if(tareasHoy.length === 0) {
-      elHoy.innerHTML = '<div style="text-align:center;padding:16px;color:#94a3b8;font-size:13px">Sin tareas programadas para hoy</div>';
-    } else {
-      const colores = { Urgente:'#dc2626', Moderado:'#d97706', 'Sin urgencia':'#059669' };
-      elHoy.innerHTML = tareasHoy.map(t => `
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fafc;border-radius:8px;border-left:3px solid ${colores[t.caracter]||'#e2e8f0'}">
-          <input type="checkbox" ${t.estado==='Finalizada'?'checked':''} onchange="cambiarEstado('${t.id}')" style="cursor:pointer;width:16px;height:16px;accent-color:#059669">
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:500;color:#0f172a">${t.titulo}</div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:2px">${t.area}${t.hora?' · ⏰ '+t.hora:''}${t.derivado?' · 👤 '+t.derivado:''}</div>
-          </div>
-          <span style="font-size:10px;padding:2px 7px;border-radius:4px;background:${colores[t.caracter]+'20'};color:${colores[t.caracter]}">${t.caracter}</span>
-        </div>`).join('');
-    }
-  }
-
-  // Semana (7 días desde hoy)
+  // SEMANA
   const elSemana = document.getElementById('dash-semana');
   if(elSemana) {
-    let semanaHTML = '';
+    let html = '';
     for(let i=0; i<7; i++) {
       const d = new Date(hoy);
       d.setDate(hoy.getDate() + i);
@@ -1563,95 +1515,86 @@ function renderDashboard() {
       const cnt = activas.filter(t => t.fecha && t.fecha === dStr).length;
       const urgCnt = activas.filter(t => t.fecha === dStr && t.caracter === 'Urgente').length;
       const esHoy = i === 0;
-      semanaHTML += `
-        <div onclick="irADia('${dStr}')" style="background:${esHoy?'#0891b2':'#fff'};border:1px solid ${esHoy?'#0891b2':'#e2e8f0'};border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
-          <div style="font-size:10px;color:${esHoy?'rgba(255,255,255,0.8)':'#94a3b8'};margin-bottom:4px">${nombDias[d.getDay()]}</div>
-          <div style="font-size:16px;font-weight:600;color:${esHoy?'#fff':'#0f172a'}">${d.getDate()}</div>
-          <div style="font-size:11px;color:${esHoy?'rgba(255,255,255,0.9)':'#475569'};margin-top:4px">${cnt > 0 ? cnt+' tarea'+(cnt>1?'s':'') : '—'}</div>
-          ${urgCnt > 0 ? `<div style="font-size:10px;color:${esHoy?'#fca5a5':'#dc2626'};margin-top:2px">🔴 ${urgCnt}</div>` : ''}
-        </div>`;
+      html += `<div onclick="irADia('${dStr}')" style="background:${esHoy?'#E6F1FB':'#f8fafc'};border:0.5px solid ${esHoy?'#85B7EB':'#e2e8f0'};border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer">
+        <div style="font-size:10px;color:${esHoy?'#185FA5':'#94a3b8'};margin-bottom:3px">${nombDias[d.getDay()]}</div>
+        <div style="font-size:16px;font-weight:500;color:${esHoy?'#0C447C':'#0f172a'}">${d.getDate()}</div>
+        <div style="font-size:10px;color:${esHoy?'#185FA5':'#64748b'};margin-top:3px">${cnt > 0 ? cnt : '—'}</div>
+        <div style="font-size:10px;color:${urgCnt>0?'#A32D2D':'transparent'};margin-top:1px">${urgCnt>0?urgCnt+' urg':'—'}</div>
+      </div>`;
     }
-    elSemana.innerHTML = semanaHTML;
+    elSemana.innerHTML = html;
   }
 
-  // Por área
+  // KANBAN
+  const colores = { Urgente:'#A32D2D', Moderado:'#854F0B', 'Sin urgencia':'#3B6D11' };
+  const bgColores = { Urgente:'#FCEBEB', Moderado:'#FAEEDA', 'Sin urgencia':'#EAF3DE' };
+
+  function kCard(t, done=false) {
+    return `<div style="background:#fff;border:0.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:6px${done?';opacity:0.6':''}">
+      <div style="font-size:12px;font-weight:500;color:#0f172a;margin-bottom:3px${done?';text-decoration:line-through':''}">${t.titulo}</div>
+      <div style="font-size:11px;color:#94a3b8">${t.area}${t.hora?' · '+t.hora:''}${t.derivado?' · '+t.derivado:''}</div>
+      ${!done?`<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-top:4px;background:${bgColores[t.caracter]};color:${colores[t.caracter]}">${t.caracter}</span>`:''}
+    </div>`;
+  }
+
+  // Pendientes (urgentes primero, max 5)
+  const pendSort = pendientes.sort((a,b)=>{const o={Urgente:0,Moderado:1,'Sin urgencia':2};return(o[a.caracter]||1)-(o[b.caracter]||1);}).slice(0,5);
+  const elPend = document.getElementById('dash-k-pend');
+  setCnt('dash-k-pend-cnt', pendientes.length);
+  if(elPend) elPend.innerHTML = pendSort.length ? pendSort.map(t=>kCard(t)).join('') + (pendientes.length>5?`<div style="font-size:12px;color:#0891b2;margin-top:6px;cursor:pointer" onclick="irAView('todas')">Ver todas (${pendientes.length}) →</div>`:'') : '<div style="font-size:12px;color:#94a3b8;text-align:center;padding:12px">Sin pendientes</div>';
+
+  // En proceso (max 5)
+  const procSort = enProceso.slice(0,5);
+  const elProc = document.getElementById('dash-k-proc');
+  setCnt('dash-k-proc-cnt', enProceso.length);
+  if(elProc) elProc.innerHTML = procSort.length ? procSort.map(t=>kCard(t)).join('') + (enProceso.length>5?`<div style="font-size:12px;color:#0891b2;margin-top:6px;cursor:pointer" onclick="irAView('en-proceso')">Ver todas (${enProceso.length}) →</div>`:'') : '<div style="font-size:12px;color:#94a3b8;text-align:center;padding:12px">Sin tareas en proceso</div>';
+
+  // Finalizadas (max 5)
+  const finSort = finHoy.slice(0,5);
+  const elFin = document.getElementById('dash-k-fin');
+  setCnt('dash-k-fin-cnt', finHoy.length);
+  if(elFin) elFin.innerHTML = finSort.length ? finSort.map(t=>kCard(t,true)).join('') : '<div style="font-size:12px;color:#94a3b8;text-align:center;padding:12px">Sin completadas</div>';
+
+  // POR ÁREA
   const areas = ['Adm. Consorcios','Adm. Propiedades','Alquileres','Ventas','Personales'];
   const elArea = document.getElementById('dash-por-area');
   if(elArea) {
-    const maxArea = Math.max(...areas.map(a => activas.filter(t=>t.area===a).length), 1);
-    elArea.innerHTML = areas.map(a => {
+    const maxA = Math.max(...areas.map(a=>activas.filter(t=>t.area===a).length),1);
+    elArea.innerHTML = areas.map(a=>{
       const cnt = activas.filter(t=>t.area===a).length;
       const urg = activas.filter(t=>t.area===a&&t.caracter==='Urgente').length;
-      return `
-        <div style="margin-bottom:10px;cursor:pointer" onclick="irAArea('${a}')">
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-            <span style="color:#475569">${a}</span>
-            <span style="color:#0f172a;font-weight:500">${cnt}${urg>0?' 🔴'+urg:''}</span>
-          </div>
-          <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:${cnt?(cnt/maxArea*100):0}%;background:${urg>0?'#dc2626':'#0891b2'};border-radius:3px;transition:width 0.3s"></div>
-          </div>
-        </div>`;
+      return `<div style="margin-bottom:9px;cursor:pointer" onclick="irAArea('${a}')">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#475569;margin-bottom:3px">
+          <span>${a}</span>
+          <span style="font-weight:500;color:#0f172a">${cnt}${urg>0?` <span style="color:#A32D2D;font-size:10px">+${urg} urg</span>`:''}</span>
+        </div>
+        <div style="height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${cnt?(cnt/maxA*100):0}%;background:${urg>0?'#E24B4A':'#378ADD'};border-radius:3px"></div>
+        </div>
+      </div>`;
     }).join('');
   }
 
-  // Por colaborador
+  // POR COLABORADOR
   const colabs = ['Yo (Matias)','Martín','Lucas','Mariano','Hugo','Proveedor'];
   const elColab = document.getElementById('dash-por-colab');
   if(elColab) {
-    const cobData = colabs.map(c => ({
-      nombre: c,
-      total: activas.filter(t=>t.derivado===c).length,
-      urgentes: activas.filter(t=>t.derivado===c&&t.caracter==='Urgente').length,
-      vencidas: activas.filter(t=>t.derivado===c&&t.fecha&&t.fecha<hoyStr).length
-    })).filter(c => c.total > 0);
-    
-    if(cobData.length === 0) {
-      elColab.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:16px">Sin tareas derivadas</div>';
-    } else {
-      elColab.innerHTML = cobData.map(c => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;cursor:pointer" onclick="irAPersona('${c.nombre}')">
-          <div>
-            <div style="font-size:13px;font-weight:500;color:#0f172a">${c.nombre}</div>
-            <div style="font-size:11px;color:#94a3b8;margin-top:1px">${c.total} tarea${c.total>1?'s':''}${c.vencidas>0?' · '+c.vencidas+' vencida'+(c.vencidas>1?'s':''):''}</div>
-          </div>
-          <div style="display:flex;gap:6px;align-items:center">
-            ${c.urgentes>0?`<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#fef2f2;color:#dc2626">🔴 ${c.urgentes}</span>`:''}
-            <span style="font-size:12px;padding:3px 10px;border-radius:6px;background:#f0f9ff;color:#0891b2;font-weight:500">${c.total}</span>
-          </div>
-        </div>`).join('');
-    }
-  }
-
-  // Urgentes lista
-  const elUrg = document.getElementById('dash-urgentes-lista');
-  if(elUrg) {
-    const urgList = urgentes.slice(0,5);
-    elUrg.innerHTML = urgList.length ? urgList.map(t => `
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #fef2f2">
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:500;color:#0f172a">${t.titulo}</div>
-          <div style="font-size:11px;color:#94a3b8">${t.area}${t.fecha?' · '+t.fecha.split('-').reverse().join('/'):''}</div>
+    const data = colabs.map(c=>({
+      n:c, total:activas.filter(t=>t.derivado===c).length,
+      urg:activas.filter(t=>t.derivado===c&&t.caracter==='Urgente').length,
+      venc:activas.filter(t=>t.derivado===c&&t.fecha&&t.fecha<hoyStr).length
+    })).filter(c=>c.total>0);
+    elColab.innerHTML = data.length ? data.map(c=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid #f1f5f9;cursor:pointer" onclick="irAPersona('${c.n}')">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:#0f172a">${c.n}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:1px">${c.total} tarea${c.total>1?'s':''}${c.venc>0?' · '+c.venc+' vencida':''}</div>
         </div>
-        ${t.derivado?`<span style="font-size:11px;color:#475569">👤 ${t.derivado}</span>`:''}
-        <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#475569">${t.estado}</span>
-      </div>`).join('') + (urgentes.length > 5 ? `<div style="font-size:12px;color:#0891b2;margin-top:8px;cursor:pointer" onclick="irAView('urgentes')">Ver todas (${urgentes.length}) →</div>` : '')
-      : '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:12px">Sin urgentes pendientes 🎉</div>';
-  }
-
-  // Vencidas lista
-  const elVenc = document.getElementById('dash-vencidas-lista');
-  if(elVenc) {
-    const vencList = vencidas.slice(0,5);
-    elVenc.innerHTML = vencList.length ? vencList.map(t => `
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #fff7ed">
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:500;color:#0f172a">${t.titulo}</div>
-          <div style="font-size:11px;color:#f97316">${t.area} · venció ${t.fecha.split('-').reverse().join('/')}</div>
+        <div style="display:flex;gap:5px;align-items:center">
+          ${c.urg>0?`<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:#FCEBEB;color:#A32D2D">${c.urg} urg</span>`:''}
+          <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:#E6F1FB;color:#0C447C;font-weight:500">${c.total}</span>
         </div>
-        <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#fff7ed;color:#f97316">${t.estado}</span>
-      </div>`).join('') + (vencidas.length > 5 ? `<div style="font-size:12px;color:#0891b2;margin-top:8px;cursor:pointer" onclick="irAView('vencidas')">Ver todas (${vencidas.length}) →</div>` : '')
-      : '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:12px">Sin vencidas 🎉</div>';
+      </div>`).join('') : '<div style="font-size:12px;color:#94a3b8;text-align:center;padding:16px">Sin tareas derivadas</div>';
   }
 }
 
