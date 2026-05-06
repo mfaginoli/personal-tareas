@@ -189,6 +189,10 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#0f172a;font-size:1
       <div class="nav-dot" style="background:#dc2626"></div>Urgentes
       <span class="nav-cnt" id="cnt-urgentes">0</span>
     </div>
+    <div class="nav-item" id="nav-moderadas" onclick="goView('moderadas',this)">
+      <div class="nav-dot" style="background:#d97706"></div>Moderadas
+      <span class="nav-cnt" id="cnt-moderadas">0</span>
+    </div>
     <div class="nav-item" id="nav-delegadas" onclick="goView('delegadas',this)">
       <div class="nav-dot" style="background:#2563eb"></div>Delegadas
       <span class="nav-cnt" id="cnt-delegadas">0</span>
@@ -311,15 +315,15 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#0f172a;font-size:1
     <!-- LIST VIEW -->
     <div id="view-list" style="display:none">
       <div class="filters" id="filters-bar">
-        <button class="fc active" onclick="setCaract('todas',this)">Todas</button>
-        <button class="fc urg" onclick="setCaract('Urgente',this)">🔴 Urgente</button>
-        <button class="fc mod" onclick="setCaract('Moderado',this)">🟠 Moderado</button>
-        <button class="fc sin" onclick="setCaract('Sin urgencia',this)">🟢 Sin urgencia</button>
+        <button class="fc fc-caract active" onclick="setCaract('todas',this)">Todas</button>
+        <button class="fc fc-caract urg" onclick="setCaract('Urgente',this)">🔴 Urgente</button>
+        <button class="fc fc-caract mod" onclick="setCaract('Moderado',this)">🟠 Moderado</button>
+        <button class="fc fc-caract sin" onclick="setCaract('Sin urgencia',this)">🟢 Sin urgencia</button>
         <div class="fsep"></div>
-        <button class="fc active" onclick="setEstado('todas-e',this)">Todos</button>
-        <button class="fc" onclick="setEstado('Pendiente',this)">Pendiente</button>
-        <button class="fc" onclick="setEstado('En proceso',this)">En proceso</button>
-        <button class="fc" onclick="setEstado('Finalizada',this)">Finalizada</button>
+        <button class="fc fc-estado active" onclick="setEstado('todas-e',this)">Todos</button>
+        <button class="fc fc-estado" onclick="setEstado('Pendiente',this)">Pendiente</button>
+        <button class="fc fc-estado" onclick="setEstado('En proceso',this)">En proceso</button>
+        <button class="fc fc-estado" onclick="setEstado('Finalizada',this)">Finalizada</button>
         <div class="fsep"></div>
         <button class="fc" id="btn-hoy" onclick="filtrarHoy()">📅 Hoy</button>
         <div class="day-nav">
@@ -539,6 +543,8 @@ function updateCounts() {
   const h = hoy();
   document.getElementById('cnt-todas').textContent = activas.length;
   document.getElementById('cnt-urgentes').textContent = activas.filter(t=>t.caracter==='Urgente').length;
+  const cntMod = document.getElementById('cnt-moderadas');
+  if(cntMod) cntMod.textContent = activas.filter(t=>t.caracter==='Moderado').length;
   document.getElementById('cnt-delegadas').textContent = activas.filter(t=>t.derivado).length;
   document.getElementById('cnt-en-proceso').textContent = tareas.filter(t=>t.estado==='En proceso').length;
   document.getElementById('cnt-vencidas').textContent = activas.filter(t=>t.fecha&&t.fecha<h).length;
@@ -556,6 +562,15 @@ window.goView = function(view, el) {
   if(el) el.classList.add('active');
   document.getElementById('persona-filter').style.display = view==='delegadas'?'block':'none';
   if(view!=='delegadas') document.getElementById('filter-persona').value='';
+  // Reset filters when changing view
+  currentCaract = 'todas';
+  currentEstado = 'todas-e';
+  document.querySelectorAll('.fc-caract').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.fc-estado').forEach(b=>b.classList.remove('active'));
+  const fcTodas = document.querySelector('.fc-caract');
+  const feTodas = document.querySelector('.fc-estado');
+  if(fcTodas) fcTodas.classList.add('active');
+  if(feTodas) feTodas.classList.add('active');
   showView(view);
 };
 
@@ -580,7 +595,7 @@ function showView(view) {
   } else {
     dash.style.display = 'none';
     list.style.display = 'block';
-    const titles = {todas:'Todas las tareas',urgentes:'Urgentes',delegadas:'Delegadas','en-proceso':'En proceso',vencidas:'Vencidas',finalizadas:'Finalizadas'};
+    const titles = {todas:'Todas las tareas',urgentes:'Urgentes',moderadas:'Moderadas',delegadas:'Delegadas','en-proceso':'En proceso',vencidas:'Vencidas',finalizadas:'Finalizadas'};
     if(view!=='area') document.getElementById('page-title').textContent = titles[view]||view;
     renderList();
   }
@@ -593,6 +608,8 @@ function getFiltered() {
     f = f.filter(t=>t.fecha&&t.fecha===diaFiltro);
   } else if(currentView==='urgentes') {
     f = f.filter(t=>t.caracter==='Urgente'&&t.estado!=='Finalizada');
+  } else if(currentView==='moderadas') {
+    f = f.filter(t=>t.caracter==='Moderado'&&t.estado!=='Finalizada');
   } else if(currentView==='delegadas') {
     f = f.filter(t=>t.derivado&&t.estado!=='Finalizada');
     const p = document.getElementById('filter-persona').value;
@@ -640,6 +657,7 @@ function renderList() {
         </div>
       </div>
       <div class="task-actions">
+        <button class="action-btn" onclick="marcarEnProceso(event,'${t.id}','${t.estado}')">${t.estado==='En proceso'?'↩ Pendiente':'▶ En proceso'}</button>
         <button class="action-btn" onclick="pasarMananaItem(event,'${t.id}','${t.fecha||''}')">Mañana</button>
         <button class="action-btn" onclick="eliminarItem(event,'${t.id}')">×</button>
       </div>
@@ -685,11 +703,14 @@ function renderDashboard() {
   // Kanban
   const colores = {Urgente:'#dc2626',Moderado:'#d97706','Sin urgencia':'#16a34a'};
   const bgColores = {Urgente:'#fef2f2',Moderado:'#fffbeb','Sin urgencia':'#f0fdf4'};
-  const kCard = (t,done=false) => `<div class="k-card ${done?'done':''}" onclick="openDrawer('${t.id}')" style="cursor:pointer">
+  const kCard = (t,done=false) => {
+    const span = !done ? `<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-top:4px;background:${bgColores[t.caracter]||'#f1f5f9'};color:${colores[t.caracter]||'#64748b'}">${t.caracter}</span>` : '';
+    return `<div class="k-card ${done?'done':''}" data-id="${t.id}" style="cursor:pointer">
     <div class="k-title ${done?'done':''}">${t.titulo}</div>
     <div class="k-meta">${t.area}${t.hora?' · '+t.hora:''}${t.derivado?' · '+t.derivado:''}</div>
-    ${!done?`<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-top:4px;background:${bgColores[t.caracter]||'#f1f5f9'};color:${colores[t.caracter]||'#64748b'}">${t.caracter}</span>`:''}
+    ${span}
   </div>`;
+  };
 
   const pendSort = [...pendientes].sort((a,b)=>{const o={Urgente:0,Moderado:1,'Sin urgencia':2};return(o[a.caracter]||1)-(o[b.caracter]||1);});
   document.getElementById('k-cnt-pend').textContent = pendientes.length;
@@ -716,6 +737,17 @@ function renderDashboard() {
   // Por colaborador
   const colabs = ['Yo (Matias)','Martín','Lucas','Mariano','Hugo','Proveedor'];
   const cobData = colabs.map(c=>({n:c,total:activas.filter(t=>t.derivado===c).length,urg:activas.filter(t=>t.derivado===c&&t.caracter==='Urgente').length,venc:activas.filter(t=>t.derivado===c&&t.fecha&&t.fecha<h).length})).filter(c=>c.total>0);
+  // Event delegation for kanban cards
+  ['k-pend','k-proc','k-fin'].forEach(colId => {
+    const col = document.getElementById(colId);
+    if(col) {
+      col.onclick = function(e) {
+        const card = e.target.closest('.k-card');
+        if(card && card.dataset.id) openDrawer(card.dataset.id);
+      };
+    }
+  });
+
   document.getElementById('d-colabs').innerHTML = cobData.length ? cobData.map(c=>`
     <div class="colab-row" onclick="goView('delegadas',document.getElementById('nav-delegadas'));document.getElementById('filter-persona').value='${c.n}';renderList()">
       <div><div class="colab-name">${c.n}</div><div class="colab-sub">${c.total} tarea${c.total>1?'s':''}${c.venc>0?' · '+c.venc+' vencida':''}</div></div>
@@ -734,14 +766,14 @@ window.irDia = function(fecha) {
 
 window.setCaract = function(c, el) {
   currentCaract = c;
-  document.querySelectorAll('#filters-bar .fc').forEach(b=>{if(['Todas','🔴 Urgente','🟠 Moderado','🟢 Sin urgencia'].includes(b.textContent.trim()))b.classList.remove('active');});
+  document.querySelectorAll('.fc-caract').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderList();
 };
 
 window.setEstado = function(e, el) {
   currentEstado = e;
-  document.querySelectorAll('#filters-bar .fc').forEach(b=>{if(['Todos','Pendiente','En proceso','Finalizada'].includes(b.textContent.trim()))b.classList.remove('active');});
+  document.querySelectorAll('.fc-estado').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderList();
 };
@@ -879,6 +911,12 @@ async function generarRecurrentes(base, rec, dias, hasta) {
 window.toggleEstado = async function(e,id,done) {
   e.stopPropagation();
   await updateDoc(doc(db,'tareas',id), {estado: done?'Pendiente':'Finalizada', updatedAt:new Date().toISOString()});
+};
+
+window.marcarEnProceso = async function(e,id,estado) {
+  e.stopPropagation();
+  const nuevoEstado = estado==='En proceso' ? 'Pendiente' : 'En proceso';
+  await updateDoc(doc(db,'tareas',id), {estado:nuevoEstado, updatedAt:new Date().toISOString()});
 };
 
 window.pasarMananaItem = async function(e,id,fecha) {
