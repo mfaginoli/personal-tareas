@@ -256,7 +256,7 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#0f172a;font-size:1
   <div class="content">
 
     <!-- DASHBOARD VIEW -->
-    <div id="view-dashboard" onclick="dashClick(event)">
+    <div id="view-dashboard">
       <div class="dash-metrics">
         <div class="dash-metric" onclick="goView('urgentes',document.getElementById('nav-urgentes'))">
           <div class="dm-label">Urgentes</div>
@@ -555,16 +555,6 @@ function updateCounts() {
   });
 }
 
-window.dashClick = function(e) {
-  let el = e.target;
-  while(el && el !== document.getElementById('view-dashboard')) {
-    if(el.classList && el.classList.contains('k-card')) {
-      if(el.dataset.id) { openDrawer(el.dataset.id); return; }
-    }
-    el = el.parentElement;
-  }
-};
-
 window.goView = function(view, el) {
   currentView = view;
   currentArea = null;
@@ -714,12 +704,15 @@ function renderDashboard() {
   const colores = {Urgente:'#dc2626',Moderado:'#d97706','Sin urgencia':'#16a34a'};
   const bgColores = {Urgente:'#fef2f2',Moderado:'#fffbeb','Sin urgencia':'#f0fdf4'};
   const kCard = (t,done=false) => {
-    const span = !done ? `<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-top:4px;background:${bgColores[t.caracter]||'#f1f5f9'};color:${colores[t.caracter]||'#64748b'}">${t.caracter}</span>` : '';
-    return `<div class="k-card ${done?'done':''}" data-id="${t.id}" style="cursor:pointer">
-    <div class="k-title ${done?'done':''}">${t.titulo}</div>
-    <div class="k-meta">${t.area}${t.hora?' · '+t.hora:''}${t.derivado?' · '+t.derivado:''}</div>
-    ${span}
-  </div>`;
+    const span = !done ? '<span style="display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-top:4px;background:'+( bgColores[t.caracter]||'#f1f5f9')+';color:'+(colores[t.caracter]||'#64748b')+'">'+t.caracter+'</span>' : '';
+    const meta = t.area+(t.hora?' · '+t.hora:'')+(t.derivado?' · '+t.derivado:'');
+    window._kmap = window._kmap||{};
+    window._kmap[t.id] = t.id;
+    return '<div class="k-card '+(done?'done':'')+'" data-id="'+t.id+'" style="cursor:pointer">'
+      +'<div class="k-title '+(done?'done':'')+'">'+(done?'<s>':'')+t.titulo+(done?'</s>':'')+'</div>'
+      +'<div class="k-meta">'+meta+'</div>'
+      +span
+      +'</div>';
   };
 
   const pendSort = [...pendientes].sort((a,b)=>{const o={Urgente:0,Moderado:1,'Sin urgencia':2};return(o[a.caracter]||1)-(o[b.caracter]||1);});
@@ -731,6 +724,14 @@ function renderDashboard() {
 
   document.getElementById('k-cnt-fin').textContent = finalizadas.length;
   document.getElementById('k-fin').innerHTML = finalizadas.slice(0,5).map(t=>kCard(t,true)).join('')||(finalizadas.length===0?'<div style="font-size:12px;color:#94a3b8;text-align:center;padding:12px">Sin finalizadas</div>':'');
+
+  // Kanban click delegation
+  document.querySelectorAll('#k-pend, #k-proc, #k-fin').forEach(col => {
+    col.addEventListener('click', function handler(e) {
+      const card = e.target.closest('[data-id]');
+      if(card) openDrawer(card.getAttribute('data-id'));
+    }, {once: false});
+  });
 
   // Por área
   const areas = ['Adm. Consorcios','Adm. Propiedades','Alquileres','Ventas','Personales'];
