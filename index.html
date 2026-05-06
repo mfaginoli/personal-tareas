@@ -556,8 +556,13 @@ function updateCounts() {
 }
 
 window.dashClick = function(e) {
-  const card = e.target.closest('.k-card');
-  if(card && card.dataset.id) openDrawer(card.dataset.id);
+  let el = e.target;
+  while(el && el !== document.getElementById('view-dashboard')) {
+    if(el.classList && el.classList.contains('k-card')) {
+      if(el.dataset.id) { openDrawer(el.dataset.id); return; }
+    }
+    el = el.parentElement;
+  }
 };
 
 window.goView = function(view, el) {
