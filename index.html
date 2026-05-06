@@ -256,7 +256,7 @@ body{font-family:'Inter',sans-serif;background:#f8fafc;color:#0f172a;font-size:1
   <div class="content">
 
     <!-- DASHBOARD VIEW -->
-    <div id="view-dashboard">
+    <div id="view-dashboard" onclick="dashClick(event)">
       <div class="dash-metrics">
         <div class="dash-metric" onclick="goView('urgentes',document.getElementById('nav-urgentes'))">
           <div class="dm-label">Urgentes</div>
@@ -555,6 +555,11 @@ function updateCounts() {
   });
 }
 
+window.dashClick = function(e) {
+  const card = e.target.closest('.k-card');
+  if(card && card.dataset.id) openDrawer(card.dataset.id);
+};
+
 window.goView = function(view, el) {
   currentView = view;
   currentArea = null;
@@ -737,17 +742,6 @@ function renderDashboard() {
   // Por colaborador
   const colabs = ['Yo (Matias)','Martín','Lucas','Mariano','Hugo','Proveedor'];
   const cobData = colabs.map(c=>({n:c,total:activas.filter(t=>t.derivado===c).length,urg:activas.filter(t=>t.derivado===c&&t.caracter==='Urgente').length,venc:activas.filter(t=>t.derivado===c&&t.fecha&&t.fecha<h).length})).filter(c=>c.total>0);
-  // Event delegation for kanban cards
-  ['k-pend','k-proc','k-fin'].forEach(colId => {
-    const col = document.getElementById(colId);
-    if(col) {
-      col.onclick = function(e) {
-        const card = e.target.closest('.k-card');
-        if(card && card.dataset.id) openDrawer(card.dataset.id);
-      };
-    }
-  });
-
   document.getElementById('d-colabs').innerHTML = cobData.length ? cobData.map(c=>`
     <div class="colab-row" onclick="goView('delegadas',document.getElementById('nav-delegadas'));document.getElementById('filter-persona').value='${c.n}';renderList()">
       <div><div class="colab-name">${c.n}</div><div class="colab-sub">${c.total} tarea${c.total>1?'s':''}${c.venc>0?' · '+c.venc+' vencida':''}</div></div>
